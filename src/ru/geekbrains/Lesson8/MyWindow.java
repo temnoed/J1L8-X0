@@ -4,104 +4,115 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Arc2D;
 
 public class MyWindow extends JFrame {
-	JTextField jtf;
-	double d1;
-	double d2;
-	String operation;
+	// Основное игровое поле
+	Map jpMap;
+	Font btnFont = new Font("Times New Roman", Font.PLAIN, 16); // Шрифт для кнопок
 
+	// Конструктор окна
 	public MyWindow() {
-		setTitle("My Window");
-		setBounds(800, 400, 400, 500);
+		// Настройка размера окна
+		setSize(505, 587);
+		setResizable(false); // Блокировка возможности изменения размер окна
+		setLocation(800, 200); // Положение
+		setTitle("Tic-Tac-Toe"); // Заголовок
+// Закрытие программы по закрытию окна
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setResizable(false);
-		jtf = new JTextField();
-		add(jtf, BorderLayout.NORTH);
-		jtf.setEditable(false);
-		jtf.setBackground(Color.WHITE);
-		jtf.setFont(new Font("Arial", Font.PLAIN, 36));
-		JPanel jpan = new JPanel();
-		jpan.setLayout(new GridLayout(4, 5));
+		jpMap = new Map(); // Создаем игровое поле
+		jpMap.startNewGame(3); // Устанавливаем размер 3х3
+// Добавляем панель с полем в центр формы
+		add(jpMap, BorderLayout.CENTER);
+// Основная нижняя панель
+		JPanel jpBottom = new JPanel(new CardLayout());
+		jpBottom.setPreferredSize(new Dimension(1, 60));
+		add(jpBottom, BorderLayout.SOUTH);
 
-		String[] sb = {"7", "8", "9", "/", "<<", "4", "5", "6", "*", "+-", "1", "2", "3", "-", "%", "0", ".", "C", "+", "="};
-		for (int i = 0; i < sb.length; i++) {
-			JButton jb = new JButton(sb[i]);
-			jb.setFont(new Font("Arial", Font.PLAIN, 24));
-			jpan.add(jb);
-			final String bn = sb[i];
 
-			try {
-				Integer.parseInt(bn);
-				jb.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						addSymbol(bn);
-					}
-				});
-				continue;
-			} catch (Exception e) {
+		// Панель с кнопками Старт/Выход
+		JPanel jpStartExit = new JPanel(new GridLayout());
+		JButton jbStart = new JButton("Начать новую игру");
+		jbStart.setFont(btnFont);
+		jbStart.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpSelectPlayers");
 			}
-
-			if (bn.equals("+") || bn.equals("-") || bn.equals("*") || bn.equals("/")) {
-				jb.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						setOperation(bn);
-					}
-				});
-				continue;
+		});
+		jpStartExit.add(jbStart);
+		JButton jbExit = new JButton("Выйти из игры");
+		jbExit.setFont(btnFont);
+		jbExit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
 			}
+		});
+		jpStartExit.add(jbExit);
+		jpBottom.add(jpStartExit, "jpStartExit");
 
-			if(bn.equals("=")) {
-				jb.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						ravno();
-					}
-				});
-				continue;
+
+		// Создание панели выбора игроков
+		JPanel jpSelectPlayers = new JPanel(new GridLayout());
+		JButton jbHumanVsHuman = new JButton("Человек vs. Человек");
+		jbHumanVsHuman.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpSelectMap");
 			}
-		}
-		add(jpan, BorderLayout.CENTER);
+		});
+		JButton jbHumanVsAI = new JButton("Человек vs. AI");
+		jbHumanVsAI.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpSelectMap");
+			}
+		});
+		jpSelectPlayers.add(jbHumanVsHuman);
+		jpSelectPlayers.add(jbHumanVsAI);
+		jpBottom.add(jpSelectPlayers, "jpSelectPlayers");
+
+
+		// Создание панели выбора поля
+		JPanel jpSelectMap = new JPanel(new GridLayout());
+		JButton jbSM3x3l3 = new JButton("Поле: 3x3 Серия: 3");
+		JButton jbSM5x5l4 = new JButton("Поле: 5x5 Серия: 4");
+		JButton jbSM10x10l5 = new JButton("Поле: 10x10 Серия: 5");
+		jpSelectMap.add(jbSM3x3l3);
+		jbSM3x3l3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpStartExit");
+				createMap(3);
+			}
+		});
+		jpSelectMap.add(jbSM5x5l4);
+		jbSM5x5l4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpStartExit");
+				createMap(5);
+			}
+		});
+		jpSelectMap.add(jbSM10x10l5);
+		jbSM10x10l5.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpStartExit");
+				createMap(10);
+			}
+		});
+		jpBottom.add(jpSelectMap, "jpSelectMap");
+
+
+		((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpStartExit");
 		setVisible(true);
 	}
 
-	public void addSymbol(String s) { // 1
-		jtf.setText(jtf.getText() + s);
-	}
-
-	public void setOperation(String operation) {
-		this.operation = operation;
-		if(d1 == 0.0) { // d1 = 150,
-			d1 = Double.parseDouble(jtf.getText());
-			jtf.setText("");
-		} else {
-			ravno();
-			jtf.setText("");
-		}
-	}
-
-	public void ravno() {
-		double res = 0.0;
-		d2 = Double.parseDouble(jtf.getText());
-		switch (operation) {
-			case "+":
-				res = d1 + d2;
-				break;
-			case "-":
-				res = d1 - d2;
-				break;
-			case "*":
-				res = d1 * d2;
-				break;
-			case "/":
-				res = d1 / d2;
-				break;
-		}
-		d1 = res;
-		d2 = 0.0;
-		jtf.setText(String.valueOf(d1));
+	public void createMap(int size) { // Метод предназначен для старта новой игры,
+		// с заданным размером поля
+		jpMap.startNewGame(size);
 	}
 }
+
+
