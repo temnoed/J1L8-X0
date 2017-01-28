@@ -17,6 +17,21 @@ public class Map extends JPanel {
 	private int[][] field;
 	private final int PLAYER1_DOT = 1;
 	private final int PLAYER2_DOT = 2;
+	// вводим поля для определения типа игры
+	private boolean humanVsHuman;
+	private boolean humanVsAi;
+	// и чей ход
+	private byte whoseMove = 1;
+
+
+	public void setHumanVsAi(boolean humanVsAi) {
+		this.humanVsAi = humanVsAi;
+	}
+
+	public void setHumanVsHuman(boolean humanVsHuman) {
+		this.humanVsHuman = humanVsHuman;
+	}
+
 	// конструктор поля
 	public Map() {
 		startNewGame(3);
@@ -30,17 +45,44 @@ public class Map extends JPanel {
 // рассчитываем координаты из пикселей в ячейки по Х и У
 				cmx = e.getX() / CELL_SIZE;
 				cmy = e.getY() / CELL_SIZE;
+
 				if (!gameOver) { // если игра все еще идет
-					if (setDot(cmx, cmy, PLAYER1_DOT)) { // пробуем поставить фишку
-						checkFieldFull(); // проверяем занятость
-						checkWin(PLAYER1_DOT); // проверяем победу первого игрока
-						repaint(); // перерисовываем поле
-						aiTurn(); // запускаем ход компьютера
+					// если человек против человека:
+					if (humanVsHuman) {
+						// если ходит первый игрок:
+						if (whoseMove == 1 && setDot(cmx, cmy, PLAYER1_DOT))   { // пробуем поставить фишку
+							checkFieldFull(); // проверяем занятость
+							checkWin(PLAYER1_DOT); // проверяем победу первого игрока
+							repaint(); // перерисовываем поле
+							whoseMove = 2;
+						}
+						// если ходит второй игрок:
+						if (whoseMove == 2 && setDot(cmx, cmy, PLAYER2_DOT))   { // пробуем поставить фишку
+							checkFieldFull(); // проверяем занятость
+							checkWin(PLAYER2_DOT); // проверяем победу первого игрока
+							repaint(); // перерисовываем поле
+							whoseMove = 1;
+						}
+
 					}
+					// если человек против компьютера:
+					if (humanVsAi) {
+						if (setDot(cmx, cmy, PLAYER1_DOT)) { // пробуем поставить фишку
+							checkFieldFull(); // проверяем занятость
+							checkWin(PLAYER1_DOT); // проверяем победу первого игрока
+							repaint(); // перерисовываем поле
+							aiTurn(); // запускаем ход компьютера
+						}
+					}
+
+
 				}
+
+
 			}
 		});
 	}
+
 	// ход компьютера
 	public void aiTurn() {
 		if (gameOver) return;
@@ -53,15 +95,19 @@ public class Map extends JPanel {
 		checkWin(PLAYER2_DOT);
 		repaint();
 	}
+
+
 	public void startNewGame(int linesCount) { // метод старта новой игры
 		this.linesCount = linesCount;
 		CELL_SIZE = PANEL_SIZE / linesCount;
 		gameOver = false;
 		field = new int[linesCount][linesCount];
+		whoseMove = 1;
 		repaint();
 
 
 	}
+
 	public void checkFieldFull() { // проверка поля на занятость
 		boolean b = true;
 		for (int i = 0; i < linesCount; i++) {
@@ -74,6 +120,7 @@ public class Map extends JPanel {
 			gameOverMsg = "DRAW"; // пишем сообщение
 		}
 	}
+
 	public boolean checkWin(int ox) { // проверка победы одного из игроков
 		for (int i = 0; i < linesCount; i++) { // во всех ячейках запускаем проверяем все возможные линии
 			for (int j = 0; j < linesCount; j++) {
@@ -88,6 +135,7 @@ public class Map extends JPanel {
 		}
 		return false;
 	}
+
 	public boolean checkLine(int cx, int cy, int vx, int vy, int l, int ox) { // проверка линии
 		if (cx + l * vx > linesCount || cy + l * vy > linesCount || cy + l * vy < -1) return false;
 		for (int i = 0; i < l; i++) {
@@ -95,6 +143,7 @@ public class Map extends JPanel {
 		}
 		return true;
 	}
+
 	public boolean setDot(int x, int y, int dot) { // Метод для установки фишки на поле
 		if (field[x][y] == 0) { // Фишка ставится только если поле свободно
 			field[x][y] = dot;
@@ -125,7 +174,8 @@ public class Map extends JPanel {
 // для второго - синий
 					if (field[i][j] == PLAYER2_DOT) g.setColor(Color.blue);
 // рисуем овал
-					g.fillOval(i * CELL_SIZE + 2, j * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4); }
+					g.fillOval(i * CELL_SIZE + 2, j * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+				}
 			}
 		}
 // если игра по какой-то причине закончилась, рисуем сообщение о завершении игры

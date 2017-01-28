@@ -58,6 +58,9 @@ public class MyWindow extends JFrame {
 		jbHumanVsHuman.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				jpMap.setHumanVsHuman(true);
+				jpMap.setHumanVsAi(false);
+				System.out.println ("Выбор H vs H");
 				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpSelectMap");
 			}
 		});
@@ -65,6 +68,8 @@ public class MyWindow extends JFrame {
 		jbHumanVsAI.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				jpMap.setHumanVsHuman(false);
+				jpMap.setHumanVsAi(true);
 				((CardLayout) jpBottom.getLayout()).show(jpBottom, "jpSelectMap");
 			}
 		});
